@@ -4,25 +4,96 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dynamic Quote Generator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #f4f4f4;
+      color: #333;
+    }
+    h1 { text-align: center; }
+    #quoteDisplay {
+      background: 20px;
+      padding: 30px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      min-height: 120px;
+      font-size: 1.4em;
+      font-style: italic;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    #categoryFilter {
+      padding: 10px;
+      font-size: 1em;
+      margin-bottom: 20px;
+      width: 100%;
+      max-width: 300px;
+    }
+    .controls {
+      text-align: center;
+      margin: 20px 0;
+    }
+    button {
+      padding: 12px 24px;
+      font-size: 1em;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 0 10px;
+    }
+    button:hover { background: #0056b3; }
+    .add-quote-form {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      margin-top: 30px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1em;
+    }
+  </style>
 </head>
 <body>
   <h1>Dynamic Quote Generator</h1>
 
-  <div id="quoteDisplay" style="min-height:2em; margin-bottom:10px;"></div>
+  <!-- Category Filter -->
+  <div class="controls">
+    <select id="categoryFilter">
+      <option value="all">All Categories</option>
+    </select>
+  </div>
 
-  <label for="categoryFilter">Filter by category:</label>
-  <select id="categoryFilter">
-    <option value="all">All Categories</option>
-  </select>
+  <!-- Quote Display Area -->
+  <div id="quoteDisplay">
+    Click the button to show a quote!
+  </div>
 
-  <button id="newQuote">Show New Quote</button>
+  <!-- Buttons -->
+  <div class="controls">
+    <button id="newQuote">Show New Quote</button>
+    <button id="toggleForm">Add Your Own Quote</button>
+  </div>
 
-  <hr>
-
-  <h2>Add a New Quote</h2>
-  <input id="newQuoteText" type="text" placeholder="Enter a new quote">
-  <input id="newQuoteCategory" type="text" placeholder="Enter quote category">
-  <button id="addQuoteBtn">Add Quote</button>
+  <!-- Hidden Form to Add New Quote -->
+  <div id="addQuoteForm" class="add-quote-form" style="display: none;">
+    <h2>Add a Quote</h2>
+    <input type="text" id="newQuoteText" placeholder="Enter the quote" required>
+    <input type="text" id="newQuoteCategory" placeholder="Enter category (e.g., motivational, funny)" required>
+    <button onclick="addQuote()">Add Quote</button>
+    <p id="formMessage" style="color: green; margin-top: 10px;"></p>
+  </div>
 
   <script src="script.js"></script>
 </body>
