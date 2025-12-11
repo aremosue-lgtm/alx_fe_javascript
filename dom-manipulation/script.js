@@ -1,91 +1,91 @@
-// Global quotes array
-const quotes = [
+// ------------- Global quotes array -------------
+var quotes = [
   { text: "Success is not final; failure is not fatal.", category: "Motivation" },
   { text: "The best way to predict your future is to create it.", category: "Motivation" },
   { text: "Creativity takes courage.", category: "Creativity" },
   { text: "Code is like humor. When you have to explain it, it’s bad.", category: "Programming" }
 ];
 
-// Global DOM elements
-const quoteDisplay = document.getElementById("quoteDisplay");
-const categoryFilter = document.getElementById("categoryFilter");
-const newQuoteBtn = document.getElementById("newQuote");
-const addQuoteBtn = document.getElementById("addQuoteBtn");
-const newQuoteText = document.getElementById("newQuoteText");
-const newQuoteCategory = document.getElementById("newQuoteCategory");
+// ------------- DOM elements (global) -------------
+var quoteDisplay = document.getElementById("quoteDisplay");
+var categoryFilter = document.getElementById("categoryFilter");
+var newQuoteBtn = document.getElementById("newQuote");
+var addQuoteBtn = document.getElementById("addQuoteBtn");
+var newQuoteText = document.getElementById("newQuoteText");
+var newQuoteCategory = document.getElementById("newQuoteCategory");
 
-// -------------------------------
-// Update category dropdown
-// -------------------------------
+// ------------- Update category dropdown -------------
 function updateCategoryDropdown() {
-  const uniqueCategories = [...new Set(quotes.map(q => q.category))];
+  var uniqueCategories = [];
+  for (var i = 0; i < quotes.length; i++) {
+    if (uniqueCategories.indexOf(quotes[i].category) === -1) {
+      uniqueCategories.push(quotes[i].category);
+    }
+  }
   categoryFilter.innerHTML = '<option value="all">All Categories</option>';
-  uniqueCategories.forEach(cat => {
-    const opt = document.createElement("option");
-    opt.value = cat;
-    opt.textContent = cat;
+  for (var j = 0; j < uniqueCategories.length; j++) {
+    var opt = document.createElement("option");
+    opt.value = uniqueCategories[j];
+    opt.textContent = uniqueCategories[j];
     categoryFilter.appendChild(opt);
-  });
+  }
 }
 
-// -------------------------------
-// Function required by tests: displayRandomQuote
-// -------------------------------
+// ------------- displayRandomQuote (required by ALX) -------------
 function displayRandomQuote() {
-  const selectedCategory = categoryFilter.value || "all";
-  const filteredQuotes = selectedCategory === "all"
-    ? quotes
-    : quotes.filter(q => q.category.toLowerCase() === selectedCategory.toLowerCase());
+  var selectedCategory = categoryFilter.value || "all";
+  var filteredQuotes = [];
+  if (selectedCategory === "all") {
+    filteredQuotes = quotes;
+  } else {
+    for (var i = 0; i < quotes.length; i++) {
+      if (quotes[i].category.toLowerCase() === selectedCategory.toLowerCase()) {
+        filteredQuotes.push(quotes[i]);
+      }
+    }
+  }
 
   if (filteredQuotes.length === 0) {
     quoteDisplay.textContent = "No quotes available in this category.";
     return;
   }
 
-  const idx = Math.floor(Math.random() * filteredQuotes.length);
+  var idx = Math.floor(Math.random() * filteredQuotes.length);
   quoteDisplay.textContent = filteredQuotes[idx].text;
 }
 
-// -------------------------------
-// Function required by tests: addQuote
-// -------------------------------
+// ------------- addQuote (required by ALX) -------------
 function addQuote() {
-  const text = newQuoteText.value.trim();
-  const category = newQuoteCategory.value.trim();
+  var text = newQuoteText.value.trim();
+  var category = newQuoteCategory.value.trim();
 
   if (!text || !category) {
     alert("Both quote text and category are required.");
     return;
   }
 
-  // Add to quotes array
-  quotes.push({ text, category });
+  quotes.push({ text: text, category: category });
 
-  // Update category dropdown
-  const prevCategory = categoryFilter.value;
+  var prevCategory = categoryFilter.value;
   updateCategoryDropdown();
 
-  if ([...categoryFilter.options].some(o => o.value.toLowerCase() === prevCategory.toLowerCase())) {
+  if ([...categoryFilter.options].some(function(o) { return o.value.toLowerCase() === prevCategory.toLowerCase(); })) {
     categoryFilter.value = prevCategory;
   } else {
     categoryFilter.value = category;
   }
 
-  // Update display with newly added quote
   quoteDisplay.textContent = text;
 
-  // Clear inputs
   newQuoteText.value = "";
   newQuoteCategory.value = "";
 }
 
-// -------------------------------
-// Event listeners required by tests
-// -------------------------------
+// ------------- Event listeners (global scope) -------------
 newQuoteBtn.addEventListener("click", displayRandomQuote);
 addQuoteBtn.addEventListener("click", addQuote);
 categoryFilter.addEventListener("change", displayRandomQuote);
 
-// Initialize dropdown and display a quote on page load
+// Initialize on page load
 updateCategoryDropdown();
 displayRandomQuote();
