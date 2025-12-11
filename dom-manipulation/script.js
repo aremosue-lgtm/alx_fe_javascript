@@ -1,4 +1,5 @@
 // REQUIRED: default quotes
+createForm();
 
 
 function addQuote() {
