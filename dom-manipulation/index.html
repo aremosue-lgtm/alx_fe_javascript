@@ -1,14 +1,53 @@
- <!DOCTYPE html>
-  <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Quote Generator</title>
-  </head>
-  <body>
-    <h1>Dynamic Quote Generator</h1>
-    <div id="quoteDisplay"></div>
-    <button id="newQuote">Show New Quote</button>
-    <script src="script.js"></script>
-  </body>
-  </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dynamic Quote Generator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    #quoteDisplay {
+      margin: 20px 0;
+      padding: 15px;
+      border: 1px solid #ccc;
+      background: #f9f9f9;
+      font-size: 1.2rem;
+      border-radius: 8px;
+    }
+    .form-container {
+      margin-top: 20px;
+      padding: 10px;
+      background: #eef3ff;
+      border-radius: 8px;
+    }
+    input {
+      padding: 5px;
+      margin: 5px 0;
+      width: 100%;
+    }
+    button {
+      padding: 8px 15px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Dynamic Quote Generator</h1>
+
+  <!-- Display Area -->
+  <div id="quoteDisplay">Click "Show New Quote" to begin.</div>
+
+  <!-- Button -->
+  <button id="newQuote">Show New Quote</button>
+
+  <!-- Form will be created dynamically by JS -->
+  <div id="formContainer"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
