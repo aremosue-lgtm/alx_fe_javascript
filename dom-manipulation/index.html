@@ -1,72 +1,48 @@
 <!DOCTYPE html>
+const categoryFilter = document.getElementById("categoryFilter");
+if (!categoryFilter) return;
 
 
-// ======= Add Quote =======
-addBtn.addEventListener('click', () => {
-const newQuote = quoteInput.value.trim();
-if (!newQuote) return alert("Please enter a quote.");
+const categories = ["all", ...new Set(quotes.map(q => q.category))];
+categoryFilter.innerHTML = categories
+.map(cat => `<option value="${cat}">${cat}</option>`)
+.join("");
 
 
-quotes.push(newQuote);
-saveQuotes();
-quoteInput.value = '';
-alert("Quote added!");
-});
-
-
-// ======= Generate Random Quote =======
-generateBtn.addEventListener('click', () => {
-if (quotes.length === 0) return alert("No quotes available.");
-
-
-const randomIndex = Math.floor(Math.random() * quotes.length);
-displayQuote(randomIndex);
-});
-
-
-// ======= Export Quotes (JSON Download) =======
-function exportToJsonFile() {
-const dataStr = JSON.stringify(quotes, null, 2);
-const blob = new Blob([dataStr], { type: 'application/json' });
-const url = URL.createObjectURL(blob);
-
-
-const a = document.createElement('a');
-a.href = url;
-a.download = 'quotes.json';
-a.click();
-URL.revokeObjectURL(url);
+const saved = localStorage.getItem("lastSelectedCategory");
+if (saved) {
+categoryFilter.value = saved;
+filterQuotes();
 }
-exportBtn.addEventListener('click', exportToJsonFile);
-
-
-// ======= Import Quotes from JSON File =======
-function importFromJsonFile(event) {
-const file = event.target.files[0];
-if (!file) return;
-
-
-const reader = new FileReader();
-reader.onload = function(e) {
-try {
-const imported = JSON.parse(e.target.result);
-if (!Array.isArray(imported)) throw new Error();
-
-
-quotes.push(...imported);
-saveQuotes();
-alert('Quotes imported successfully!');
-} catch (err) {
-alert('Invalid JSON file.');
-}
-};
-
-
-reader.readAsText(file);
 }
 
 
-importFile.addEventListener('change', importFromJsonFile);
+function filterQuotes() {
+const category = document.getElementById("categoryFilter").value;
+localStorage.setItem("lastSelectedCategory", category);
+
+
+if (category === "all") {
+showRandomQuote();
+return;
+}
+
+
+const filtered = quotes.filter(q => q.category === category);
+if (filtered.length === 0) {
+quoteDisplay.textContent = "No quotes available in this category.";
+return;
+}
+
+
+const i = Math.floor(Math.random() * filtered.length);
+const q = filtered[i];
+quoteDisplay.textContent = `"${q.text}" — (${q.category})`;
+sessionStorage.setItem("lastViewedQuote", i);
+}
+
+
+populateCategories();
 
 
 // ======= Load Last Viewed Quote on Page Load =======
