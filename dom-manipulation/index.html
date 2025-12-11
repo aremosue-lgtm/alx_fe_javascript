@@ -1,53 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dynamic Quote Generator</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-    }
-    #quoteDisplay {
-      margin: 20px 0;
-      padding: 15px;
-      border: 1px solid #ccc;
-      background: #f9f9f9;
-      font-size: 1.2rem;
-      border-radius: 8px;
-    }
-    .form-container {
-      margin-top: 20px;
-      padding: 10px;
-      background: #eef3ff;
-      border-radius: 8px;
-    }
-    input {
-      padding: 5px;
-      margin: 5px 0;
-      width: 100%;
-    }
-    button {
-      padding: 8px 15px;
-      margin-top: 10px;
-      cursor: pointer;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dynamic Quote Generator — Web Storage & JSON</title>
+<style>
+body { font-family: Arial, sans-serif; margin: 20px; }
+#quoteDisplay { margin: 20px 0; padding: 15px; border: 1px solid #ccc; background: #f9f9f9; font-size: 1.1rem; border-radius: 8px; }
+.form-container { margin-top: 20px; padding: 10px; background: #eef3ff; border-radius: 8px; }
+input, select { padding: 7px; margin: 6px 0; width: 100%; box-sizing: border-box; }
+button { padding: 8px 15px; margin-top: 10px; cursor: pointer; }
+.controls { display:flex; gap:10px; flex-wrap:wrap; }
+</style>
 </head>
 <body>
 
-  <h1>Dynamic Quote Generator</h1>
 
-  <!-- Display Area -->
-  <div id="quoteDisplay">Click "Show New Quote" to begin.</div>
+<h1>Dynamic Quote Generator</h1>
 
-  <!-- Button -->
-  <button id="newQuote">Show New Quote</button>
 
-  <!-- Form will be created dynamically by JS -->
-  <div id="formContainer"></div>
+<!-- Display Area -->
+<div id="quoteDisplay">Click "Show New Quote" to begin.</div>
 
-  <script src="script.js"></script>
+
+<!-- Controls -->
+<div class="controls">
+<button id="newQuote">Show New Quote</button>
+<button id="exportJson">Export Quotes (JSON)</button>
+<label for="importFile" style="align-self:center;">
+<input type="file" id="importFile" accept=".json" style="display:none" />
+<button id="importBtn" type="button">Import Quotes (JSON)</button>
+</label>
+</div>
+
+
+<!-- Form container (created by JS) -->
+<div id="formContainer"></div>
+
+
+<script src="script.js"></script>
 </body>
 </html>
