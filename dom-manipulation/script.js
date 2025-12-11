@@ -5,7 +5,9 @@ let quotes = [];
 const quoteDisplay = document.getElementById('quoteDisplay');
 const newQuoteBtn = document.getElementById('newQuote');
 const formContainer = document.getElementById('formContainer');
-const storageContainer = document.getElementById('storageContainer');
+const exportBtn = document.getElementById('exportBtn');
+const importFileInput = document.getElementById('importFile');
+const lastQuoteInfo = document.getElementById('lastQuoteInfo');
 
 // Key for localStorage
 const QUOTES_STORAGE_KEY = 'dynamicQuotes';
@@ -46,8 +48,11 @@ function showRandomQuote() {
   const randomIndex = Math.floor(Math.random() * quotes.length);
   const quote = quotes[randomIndex];
 
-  // Store last viewed quote in sessionStorage (demo of sessionStorage)
+  // Store last viewed quote in sessionStorage
   sessionStorage.setItem('lastViewedQuote', JSON.stringify(quote));
+
+  // Update last quote info display
+  lastQuoteInfo.textContent = `Last viewed: "${quote.text}" — ${quote.category}`;
 
   quoteDisplay.innerHTML = ''; // Clear previous
 
@@ -147,57 +152,23 @@ function importFromJsonFile(event) {
   reader.readAsText(file);
 }
 
-// Create import/export controls dynamically
-function createStorageControls() {
-  // Export button
-  const exportBtn = document.createElement('button');
-  exportBtn.textContent = 'Export Quotes to JSON';
-  exportBtn.addEventListener('click', exportToJsonFile);
-
-  // Import file input
-  const importInput = document.createElement('input');
-  importInput.type = 'file';
-  importInput.id = 'importFile';
-  importInput.accept = '.json';
-  importInput.addEventListener('change', importFromJsonFile);
-
-  const importLabel = document.createElement('label');
-  importLabel.htmlFor = 'importFile';
-  importLabel.textContent = 'Import Quotes from JSON';
-  importLabel.style.marginLeft = '10px';
-  importLabel.style.cursor = 'pointer';
-  importLabel.style.padding = '10px 20px';
-  importLabel.style.background = '#eee';
-  importLabel.style.border = '1px solid #ccc';
-  importLabel.style.borderRadius = '4px';
-
-  // Last viewed quote (from sessionStorage)
-  const lastQuoteInfo = document.createElement('p');
-  lastQuoteInfo.id = 'lastQuoteInfo';
-  lastQuoteInfo.style.fontSize = '0.9em';
-  lastQuoteInfo.style.color = '#666';
-  lastQuoteInfo.style.marginTop = '15px';
-
-  const lastQuote = sessionStorage.getItem('lastViewedQuote');
-  if (lastQuote) {
-    const q = JSON.parse(lastQuote);
-    lastQuoteInfo.textContent = `Last viewed: "${q.text}" — ${q.category}`;
-  } else {
-    lastQuoteInfo.textContent = 'No quote viewed in this session yet.';
-  }
-
-  // Append all
-  storageContainer.appendChild(exportBtn);
-  storageContainer.appendChild(importInput);
-  storageContainer.appendChild(importLabel);
-  storageContainer.appendChild(lastQuoteInfo);
-}
-
 // Event Listeners
 newQuoteBtn.addEventListener('click', showRandomQuote);
+exportBtn.addEventListener('click', exportToJsonFile);
+importFileInput.addEventListener('change', importFromJsonFile);
 
 // Initialize
 loadQuotes();
 createAddQuoteForm();
-createStorageControls();
 showRandomQuote(); // Show initial quote
+
+// Restore last viewed quote info if available in sessionStorage
+const lastQuote = sessionStorage.getItem('lastViewedQuote');
+if (lastQuote) {
+  try {
+    const q = JSON.parse(lastQuote);
+    lastQuoteInfo.textContent = `Last viewed: "${q.text}" — ${q.category}`;
+  } catch (e) {
+    console.error('Failed to parse last viewed quote');
+  }
+}
