@@ -10,9 +10,7 @@ let quotes = [
 // DOM elements
 const quoteDisplay = document.getElementById('quoteDisplay');
 const newQuoteBtn = document.getElementById('newQuote');
-const addQuoteBtn = document.getElementById('addQuoteBtn');
-const newQuoteTextInput = document.getElementById('newQuoteText');
-const newQuoteCategoryInput = document.getElementById('newQuoteCategory');
+const formContainer = document.getElementById('formContainer');
 
 // Function to show a random quote
 function showRandomQuote() {
@@ -40,8 +38,36 @@ function showRandomQuote() {
   quoteDisplay.appendChild(quoteCategory);
 }
 
-// Function to add a new quote
+// Function to create the add quote form dynamically
+function createAddQuoteForm() {
+  // Create input for quote text
+  const newQuoteTextInput = document.createElement('input');
+  newQuoteTextInput.id = 'newQuoteText';
+  newQuoteTextInput.type = 'text';
+  newQuoteTextInput.placeholder = 'Enter a new quote';
+
+  // Create input for quote category
+  const newQuoteCategoryInput = document.createElement('input');
+  newQuoteCategoryInput.id = 'newQuoteCategory';
+  newQuoteCategoryInput.type = 'text';
+  newQuoteCategoryInput.placeholder = 'Enter quote category (e.g., motivational)';
+
+  // Create add button
+  const addQuoteBtn = document.createElement('button');
+  addQuoteBtn.textContent = 'Add Quote';
+  addQuoteBtn.addEventListener('click', addQuote); // Attach event listener
+
+  // Append all to the form container
+  formContainer.appendChild(newQuoteTextInput);
+  formContainer.appendChild(newQuoteCategoryInput);
+  formContainer.appendChild(addQuoteBtn);
+}
+
+// Function to add a new quote (called by the dynamically created button)
 function addQuote() {
+  const newQuoteTextInput = document.getElementById('newQuoteText');
+  const newQuoteCategoryInput = document.getElementById('newQuoteCategory');
+
   const text = newQuoteTextInput.value.trim();
   const category = newQuoteCategoryInput.value.trim() || 'uncategorized';
 
@@ -66,7 +92,9 @@ function addQuote() {
 
 // Event Listeners
 newQuoteBtn.addEventListener('click', showRandomQuote);
-addQuoteBtn.addEventListener('click', addQuote);
+
+// Create the form dynamically on page load
+createAddQuoteForm();
 
 // Show a quote on initial page load
 showRandomQuote();
