@@ -24,7 +24,7 @@
     button {
       padding: 10px 20px;
       font-size: 1em;
-      margin-right: 10px;
+      margin: 10px 10px 10px 0;
       cursor: pointer;
     }
     input {
@@ -32,8 +32,13 @@
       margin-right: 10px;
       width: 250px;
     }
-    .form-container {
+    .form-container, .storage-container {
       margin-top: 30px;
+      padding: 20px;
+      border-top: 1px solid #ddd;
+    }
+    .hidden {
+      display: none;
     }
   </style>
 </head>
@@ -46,8 +51,9 @@
   <!-- Show new quote button -->
   <button id="newQuote">Show New Quote</button>
 
-  <!-- Form will be added dynamically here -->
+  <!-- Containers for dynamic content -->
   <div id="formContainer" class="form-container"></div>
+  <div id="storageContainer" class="storage-container"></div>
 
   <script src="script.js"></script>
 </body>
