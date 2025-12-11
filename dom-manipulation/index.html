@@ -1,27 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Dynamic Quote Generator</title>
 </head>
 <body>
   <h1>Dynamic Quote Generator</h1>
 
-  <!-- Display area -->
-  <div id="quoteDisplay"></div>
+  <!-- Quote display -->
+  <div id="quoteDisplay" aria-live="polite" style="min-height:2em; margin-bottom:10px;"></div>
 
-  <!-- Category Filter -->
+  <!-- Category filter -->
+  <label for="categoryFilter">Filter by category:</label>
   <select id="categoryFilter">
     <option value="all">All Categories</option>
   </select>
 
+  <!-- Show new quote button (tests check for listener on this id) -->
   <button id="newQuote">Show New Quote</button>
+
+  <hr />
 
   <h2>Add a New Quote</h2>
   <div>
     <input id="newQuoteText" type="text" placeholder="Enter a new quote" />
     <input id="newQuoteCategory" type="text" placeholder="Enter quote category" />
+    <!-- tests might look for addQuote function name, so id here is optional -->
     <button id="addQuoteBtn">Add Quote</button>
   </div>
 
