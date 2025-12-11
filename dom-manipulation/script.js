@@ -1,33 +1,27 @@
-// quotes array - must exist globally for test
-var quotes = [
+// Global quotes array
+const quotes = [
   { text: "Success is not final; failure is not fatal.", category: "Motivation" },
   { text: "The best way to predict your future is to create it.", category: "Motivation" },
   { text: "Creativity takes courage.", category: "Creativity" },
   { text: "Code is like humor. When you have to explain it, it’s bad.", category: "Programming" }
 ];
 
-// DOM elements - globally accessible for test
-var quoteDisplay = document.getElementById("quoteDisplay");
-var categoryFilter = document.getElementById("categoryFilter");
-var newQuoteBtn = document.getElementById("newQuote");
-var addQuoteBtn = document.getElementById("addQuoteBtn");
-var newQuoteText = document.getElementById("newQuoteText");
-var newQuoteCategory = document.getElementById("newQuoteCategory");
+// Global DOM elements
+const quoteDisplay = document.getElementById("quoteDisplay");
+const categoryFilter = document.getElementById("categoryFilter");
+const newQuoteBtn = document.getElementById("newQuote");
+const addQuoteBtn = document.getElementById("addQuoteBtn");
+const newQuoteText = document.getElementById("newQuoteText");
+const newQuoteCategory = document.getElementById("newQuoteCategory");
 
 // -------------------------------
-// update category dropdown
+// Update category dropdown
 // -------------------------------
 function updateCategoryDropdown() {
-  var uniqueCategories = [];
-  quotes.forEach(function(q){
-    if(uniqueCategories.indexOf(q.category) === -1){
-      uniqueCategories.push(q.category);
-    }
-  });
-
+  const uniqueCategories = [...new Set(quotes.map(q => q.category))];
   categoryFilter.innerHTML = '<option value="all">All Categories</option>';
-  uniqueCategories.forEach(function(cat){
-    var opt = document.createElement("option");
+  uniqueCategories.forEach(cat => {
+    const opt = document.createElement("option");
     opt.value = cat;
     opt.textContent = cat;
     categoryFilter.appendChild(opt);
@@ -35,47 +29,49 @@ function updateCategoryDropdown() {
 }
 
 // -------------------------------
-// displayRandomQuote function required by test
+// Function required by tests: displayRandomQuote
 // -------------------------------
 function displayRandomQuote() {
-  var selectedCategory = categoryFilter.value || "all";
-  var filteredQuotes = selectedCategory === "all" ? quotes :
-    quotes.filter(function(q){ return q.category.toLowerCase() === selectedCategory.toLowerCase(); });
+  const selectedCategory = categoryFilter.value || "all";
+  const filteredQuotes = selectedCategory === "all"
+    ? quotes
+    : quotes.filter(q => q.category.toLowerCase() === selectedCategory.toLowerCase());
 
-  if(filteredQuotes.length === 0){
+  if (filteredQuotes.length === 0) {
     quoteDisplay.textContent = "No quotes available in this category.";
     return;
   }
 
-  var idx = Math.floor(Math.random() * filteredQuotes.length);
+  const idx = Math.floor(Math.random() * filteredQuotes.length);
   quoteDisplay.textContent = filteredQuotes[idx].text;
 }
 
 // -------------------------------
-// addQuote function required by test
+// Function required by tests: addQuote
 // -------------------------------
 function addQuote() {
-  var text = (newQuoteText.value || "").trim();
-  var category = (newQuoteCategory.value || "").trim();
+  const text = newQuoteText.value.trim();
+  const category = newQuoteCategory.value.trim();
 
-  if(!text || !category){
-    alert("Both text and category are required.");
+  if (!text || !category) {
+    alert("Both quote text and category are required.");
     return;
   }
 
-  // Add new quote
-  quotes.push({ text: text, category: category });
+  // Add to quotes array
+  quotes.push({ text, category });
 
-  // Update dropdown
-  var prevCategory = categoryFilter.value;
+  // Update category dropdown
+  const prevCategory = categoryFilter.value;
   updateCategoryDropdown();
-  if ([...categoryFilter.options].some(function(o){ return o.value.toLowerCase() === prevCategory.toLowerCase(); })) {
+
+  if ([...categoryFilter.options].some(o => o.value.toLowerCase() === prevCategory.toLowerCase())) {
     categoryFilter.value = prevCategory;
   } else {
     categoryFilter.value = category;
   }
 
-  // Update display
+  // Update display with newly added quote
   quoteDisplay.textContent = text;
 
   // Clear inputs
@@ -84,12 +80,12 @@ function addQuote() {
 }
 
 // -------------------------------
-// Attach event listeners for test harness
+// Event listeners required by tests
 // -------------------------------
 newQuoteBtn.addEventListener("click", displayRandomQuote);
 addQuoteBtn.addEventListener("click", addQuote);
 categoryFilter.addEventListener("change", displayRandomQuote);
 
-// Initialize
+// Initialize dropdown and display a quote on page load
 updateCategoryDropdown();
 displayRandomQuote();
