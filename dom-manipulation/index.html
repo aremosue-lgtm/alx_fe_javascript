@@ -1,57 +1,39 @@
 <!DOCTYPE html>
-const categoryFilter = document.getElementById("categoryFilter");
-if (!categoryFilter) return;
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dynamic Quote Generator</title>
+<style>
+body { font-family: Arial, sans-serif; margin: 20px; }
+#quoteDisplay { margin: 20px 0; padding: 15px; border: 1px solid #ccc; background: #f9f9f9; font-size: 1.1rem; border-radius: 8px; }
+.form-container { margin-top: 20px; padding: 10px; background: #eef3ff; border-radius: 8px; }
+input, button, select { padding: 7px; margin: 6px 0; }
+button { cursor: pointer; }
+</style>
+</head>
+<body>
 
 
-const categories = ["all", ...new Set(quotes.map(q => q.category))];
-categoryFilter.innerHTML = categories
-.map(cat => `<option value="${cat}">${cat}</option>`)
-.join("");
+<h1>Dynamic Quote Generator</h1>
 
 
-const saved = localStorage.getItem("lastSelectedCategory");
-if (saved) {
-categoryFilter.value = saved;
-filterQuotes();
-}
-}
+<div id="quoteDisplay">Click "Show New Quote" to begin.</div>
 
 
-function filterQuotes() {
-const category = document.getElementById("categoryFilter").value;
-localStorage.setItem("lastSelectedCategory", category);
+<select id="categoryFilter">
+<option value="all">All Categories</option>
+</select>
 
 
-if (category === "all") {
-showRandomQuote();
-return;
-}
+<button id="newQuote">Show New Quote</button>
+<button id="exportQuotes">Export Quotes</button>
+<input type="file" id="importFile" accept=".json" />
 
 
-const filtered = quotes.filter(q => q.category === category);
-if (filtered.length === 0) {
-quoteDisplay.textContent = "No quotes available in this category.";
-return;
-}
+<div id="formContainer"></div>
 
 
-const i = Math.floor(Math.random() * filtered.length);
-const q = filtered[i];
-quoteDisplay.textContent = `"${q.text}" — (${q.category})`;
-sessionStorage.setItem("lastViewedQuote", i);
-}
-
-
-populateCategories();
-
-
-// ======= Load Last Viewed Quote on Page Load =======
-window.addEventListener('DOMContentLoaded', () => {
-const lastIndex = sessionStorage.getItem(SS_LAST_VIEWED_KEY);
-if (lastIndex !== null && quotes[lastIndex]) {
-displayQuote(lastIndex);
-}
-});
-</script>
+<script src="script.js"></script>
 </body>
 </html>
