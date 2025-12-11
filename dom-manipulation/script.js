@@ -1,4 +1,4 @@
-// Array of quote objects { text, category }
+// Array of quote objects { text, category, optional serverId }
 let quotes = [];
 
 // DOM elements
@@ -45,19 +45,18 @@ function saveQuotes() {
   localStorage.setItem(QUOTES_STORAGE_KEY, JSON.stringify(quotes));
 }
 
-// REQUIRED FUNCTION NAME: fetchQuotesFromServer
+// Fetch quotes from server and merge (server -> local)
 async function fetchQuotesFromServer() {
   try {
-    syncStatus.textContent = 'Syncing with server...';
-
+    syncStatus.textContent = 'Fetching from server...';
     const response = await fetch(SERVER_URL);
     const data = await response.json();
 
-    // JSONPlaceholder posts → transform into quotes
     const serverQuotes = Array.isArray(data)
       ? data.map(post => ({
           text: post.title || post.body || `post-${post.id}`,
-          category: `user-${post.userId || 'unknown'}`
+          category: `user-${post.userId || 'unknown'}`,
+          serverId: post.id
         }))
       : [];
 
@@ -65,15 +64,25 @@ async function fetchQuotesFromServer() {
     let updated = 0;
 
     serverQuotes.forEach(serverQuote => {
-      const existingIndex = quotes.findIndex(q => q.text === serverQuote.text);
-
+      const existingIndex = quotes.findIndex(q => q.text === serverQuote.text || q.serverId === serverQuote.serverId);
       if (existingIndex === -1) {
-        quotes.push(serverQuote);
+        // New from server
+        quotes.push({
+          text: serverQuote.text,
+          category: serverQuote.category,
+          serverId: serverQuote.serverId
+        });
         added++;
-      } else if (quotes[existingIndex].category !== serverQuote.category) {
-        // server precedence
-        quotes[existingIndex].category = serverQuote.category;
-        updated++;
+      } else {
+        // If exists but different category, server takes precedence
+        if (quotes[existingIndex].category !== serverQuote.category) {
+          quotes[existingIndex].category = serverQuote.category;
+          updated++;
+        }
+        // Ensure serverId is saved locally
+        if (!quotes[existingIndex].serverId && serverQuote.serverId) {
+          quotes[existingIndex].serverId = serverQuote.serverId;
+        }
       }
     });
 
@@ -81,14 +90,12 @@ async function fetchQuotesFromServer() {
       saveQuotes();
       populateCategories();
       filterQuotes();
-      syncStatus.textContent =
-        `Sync complete: ${added} new quotes added, ${updated} updated.`;
+      syncStatus.textContent = `Fetched: ${added} added, ${updated} updated.`;
     } else {
-      syncStatus.textContent = 'Sync complete: No changes.';
+      syncStatus.textContent = 'Fetched: No changes.';
     }
-
   } catch (err) {
-    syncStatus.textContent = 'Sync failed: Could not reach server.';
+    syncStatus.textContent = 'Fetch failed: Could not reach server.';
     console.error(err);
   }
 }
@@ -112,19 +119,59 @@ async function postQuoteToServer(payload) {
     }
 
     const result = await response.json();
-    // JSONPlaceholder returns an object with an id — we can attach it locally if helpful
-    if (result && result.id) {
-      // attach a serverId field to the quote stored locally for traceability
-      const localIndex = quotes.findIndex(q => q.text === payload.text && q.category === payload.category);
-      if (localIndex !== -1) {
-        quotes[localIndex].serverId = result.id;
-        saveQuotes();
-      }
-    }
     return result;
   } catch (err) {
     console.error('Failed to POST quote to server:', err);
     return null;
+  }
+}
+
+// New: syncQuotes function (required by tests)
+// This function performs a two-way-ish sync:
+// 1) Pulls latest from server and merges (server wins on conflicts).
+// 2) Pushes local-only quotes (no serverId) to server.
+async function syncQuotes() {
+  try {
+    syncStatus.textContent = 'Starting sync...';
+
+    // 1) Pull from server first
+    await fetchQuotesFromServer();
+
+    // 2) Find local quotes that haven't been posted (no serverId)
+    const localOnly = quotes.filter(q => !q.serverId);
+
+    let pushed = 0;
+    for (const q of localOnly) {
+      // Prepare payload to match JSONPlaceholder shape
+      const payload = {
+        title: q.text,
+        body: q.text,
+        userId: typeof q.category === 'string' ? q.category : String(q.category)
+      };
+
+      const res = await postQuoteToServer(payload);
+      if (res && res.id) {
+        // attach serverId locally
+        const idx = quotes.findIndex(localQ => localQ.text === q.text && localQ.category === q.category && !localQ.serverId);
+        if (idx !== -1) {
+          quotes[idx].serverId = res.id;
+          pushed++;
+        }
+      }
+    }
+
+    if (pushed > 0) {
+      saveQuotes();
+      populateCategories();
+      filterQuotes();
+    }
+
+    syncStatus.textContent = `Sync complete: pushed ${pushed} local quotes.`;
+    return { pushed };
+  } catch (err) {
+    syncStatus.textContent = 'Sync failed.';
+    console.error('syncQuotes error:', err);
+    return { pushed: 0, error: err };
   }
 }
 
@@ -229,7 +276,7 @@ function createAddQuoteForm() {
   formContainer.appendChild(addBtn);
 }
 
-// Add a new quote (also POSTs to server)
+// Add a new quote (adds locally and attempts to post to server)
 async function addQuote() {
   const textEl = document.getElementById('newQuoteText');
   const catEl = document.getElementById('newQuoteCategory');
@@ -251,21 +298,89 @@ async function addQuote() {
   if (textEl) textEl.value = '';
   if (catEl) catEl.value = '';
 
-  // Post to server (mock)
+  // Try to post to server immediately; if it fails, syncQuotes will pick it up later
   const serverResult = await postQuoteToServer({
-    title: newQuote.text,      // using title field to align with jsonplaceholder shape
+    title: newQuote.text,
     body: newQuote.text,
-    userId: newQuote.category  // we put category in userId to keep some traceability (it's mock)
+    userId: newQuote.category
   });
 
-  if (serverResult) {
-    // feedback for the user
+  if (serverResult && serverResult.id) {
+    // attach serverId locally
+    const idx = quotes.findIndex(q => q.text === newQuote.text && q.category === newQuote.category && !q.serverId);
+    if (idx !== -1) {
+      quotes[idx].serverId = serverResult.id;
+      saveQuotes();
+    }
     alert('Quote added and posted to server!');
   } else {
-    alert('Quote added locally. Failed to post to server.');
+    alert('Quote added locally. Will sync to server when possible.');
   }
 }
 
 // Export quotes to JSON
 function exportToJsonFile() {
-  const d
+  const dataStr = JSON.stringify(quotes, null, 2);
+  const blob = new Blob([dataStr], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'quotes.json';
+  link.click();
+
+  URL.revokeObjectURL(url);
+}
+
+// Import quotes from JSON
+function importFromJsonFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (Array.isArray(imported)) {
+        quotes.push(...imported);
+        saveQuotes();
+        populateCategories();
+        filterQuotes();
+        alert('Quotes imported!');
+      }
+    } catch (err) {
+      alert('Invalid JSON file.');
+    }
+  };
+  reader.readAsText(file);
+}
+
+// Event listeners
+newQuoteBtn.addEventListener('click', displayRandomQuote);
+exportBtn.addEventListener('click', exportToJsonFile);
+importFileInput.addEventListener('change', importFromJsonFile);
+// Wire manual sync button to syncQuotes (test may expect syncQuotes to be callable)
+manualSyncBtn.addEventListener('click', () => {
+  // call syncQuotes but don't await here so UI isn't blocked
+  syncQuotes();
+});
+categoryFilter.addEventListener('change', filterQuotes);
+
+// Initialize app
+loadQuotes();
+createAddQuoteForm();
+populateCategories();
+filterQuotes();
+fetchQuotesFromServer(); // initial fetch from server
+
+// Auto-sync using the syncQuotes function every 30 seconds
+setInterval(syncQuotes, 30000);
+
+// Restore last viewed quote
+const lastQuote = sessionStorage.getItem('lastViewedQuote');
+if (lastQuote) {
+  try {
+    const q = JSON.parse(lastQuote);
+    lastQuoteInfo.textContent = `Last viewed: "${q.text}" — ${q.category}`;
+  } catch (e) {}
+}
