@@ -16,7 +16,7 @@ const syncStatus = document.getElementById('syncStatus');
 const QUOTES_STORAGE_KEY = 'dynamicQuotes';
 const FILTER_STORAGE_KEY = 'selectedCategoryFilter';
 
-// Mock server URL (dummyjson.com provides 100 real quotes)
+// Mock server URL
 const SERVER_URL = 'https://dummyjson.com/quotes';
 
 // Load quotes from localStorage
@@ -30,7 +30,6 @@ function loadQuotes() {
     }
   }
   if (quotes.length === 0) {
-    // Initial defaults if nothing stored
     quotes = [
       { text: "The only way to do great work is to love what you do.", category: "motivational" },
       { text: "Life is what happens when you're busy making other plans.", category: "life" },
@@ -45,8 +44,8 @@ function saveQuotes() {
   localStorage.setItem(QUOTES_STORAGE_KEY, JSON.stringify(quotes));
 }
 
-// Sync with server: fetch and merge (server precedence on conflicts)
-async function syncWithServer() {
+// REQUIRED FUNCTION NAME: fetchQuotesFromServer
+async function fetchQuotesFromServer() {
   try {
     syncStatus.textContent = 'Syncing with server...';
     const response = await fetch(SERVER_URL);
@@ -62,11 +61,10 @@ async function syncWithServer() {
     serverQuotes.forEach(serverQuote => {
       const existingIndex = quotes.findIndex(q => q.text === serverQuote.text);
       if (existingIndex === -1) {
-        // New quote from server
         quotes.push(serverQuote);
         added++;
       } else if (quotes[existingIndex].category !== serverQuote.category) {
-        // Conflict: same text, different category → server wins
+        // Conflict resolution: server takes precedence
         quotes[existingIndex].category = serverQuote.category;
         updated++;
       }
@@ -196,7 +194,7 @@ function addQuote() {
   alert('Quote added successfully!');
 }
 
-// Export / Import remain the same
+// Export / Import
 function exportToJsonFile() {
   const dataStr = JSON.stringify(quotes, null, 2);
   const blob = new Blob([dataStr], { type: 'application/json' });
@@ -233,17 +231,17 @@ function importFromJsonFile(event) {
 newQuoteBtn.addEventListener('click', showRandomQuote);
 exportBtn.addEventListener('click', exportToJsonFile);
 importFileInput.addEventListener('change', importFromJsonFile);
-manualSyncBtn.addEventListener('click', syncWithServer);
+manualSyncBtn.addEventListener('click', fetchQuotesFromServer);
 
 // Initialize
 loadQuotes();
 createAddQuoteForm();
 populateCategories();
 filterQuotes();
-syncWithServer(); // Initial sync
+fetchQuotesFromServer(); // Initial sync
 
 // Periodic sync every 30 seconds
-setInterval(syncWithServer, 30000);
+setInterval(fetchQuotesFromServer, 30000);
 
 // Restore last viewed
 const lastQuote = sessionStorage.getItem('lastViewedQuote');
