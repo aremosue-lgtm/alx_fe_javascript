@@ -1,62 +1,69 @@
-// script.js — Web Storage (localStorage + sessionStorage) + JSON import/export
-const file = event.target.files?.[0];
-if (!file) return;
+// REQUIRED: default quotes
 
 
-const fileReader = new FileReader();
-fileReader.onload = function (e) {
-try {
-const imported = JSON.parse(e.target.result);
-if (!Array.isArray(imported)) throw new Error('JSON must be an array of quote objects');
+function addQuote() {
+const text = document.getElementById("newQuoteText").value.trim();
+const category = document.getElementById("newQuoteCategory").value.trim();
 
 
-// basic validation: each item should have text and category (strings)
-const validated = imported.filter(item => item && typeof item.text === 'string' && typeof item.category === 'string');
-
-
-if (validated.length === 0) {
-alert('No valid quotes found in the imported file.');
+if (!text || !category) {
+alert("Please fill all fields.");
 return;
 }
 
 
-// Append imported quotes (could be changed to replace if desired)
-quotes.push(...validated);
-saveQuotesToLocalStorage();
-alert(`Imported ${validated.length} quotes successfully.`);
-} catch (err) {
-console.error('Import failed', err);
-alert('Failed to import quotes: ' + (err.message || err));
-} finally {
-// reset input value so same file can be re-imported if desired
-importFileInput.value = '';
+quotes.push({ text, category });
+saveQuotes();
+
+
+document.getElementById("newQuoteText").value = "";
+document.getElementById("newQuoteCategory").value = "";
+
+
+quoteDisplay.textContent = "Quote added successfully!";
 }
+
+
+// ----------------------------
+// REQUIRED: exportToJsonFile()
+// ----------------------------
+function exportToJsonFile() {
+const data = JSON.stringify(quotes, null, 2);
+const blob = new Blob([data], { type: "application/json" });
+const url = URL.createObjectURL(blob);
+
+
+const a = document.createElement("a");
+a.href = url;
+a.download = "quotes.json";
+a.click();
+
+
+URL.revokeObjectURL(url);
+}
+
+
+exportBtn.addEventListener("click", exportToJsonFile);
+
+
+// ----------------------------
+// REQUIRED: importFromJsonFile()
+// ----------------------------
+function importFromJsonFile(event) {
+const file = event.target.files[0];
+const reader = new FileReader();
+
+
+reader.onload = function(e) {
+const imported = JSON.parse(e.target.result);
+quotes.push(...imported);
+saveQuotes();
+alert("Quotes imported successfully!");
 };
-fileReader.readAsText(file);
+
+
+reader.readAsText(file);
 }
 
 
-// -------------------------
-// Initialization
-// -------------------------
-(function init() {
-const loaded = loadQuotesFromLocalStorage();
-if (!loaded) {
-// First run — save defaults to localStorage so user starts with them
-saveQuotesToLocalStorage();
-}
-
-
-createAddQuoteForm();
-
-
-// Event wiring
-exportJsonBtn.addEventListener('click', exportQuotesAsJson);
-importFileInput.addEventListener('change', importFromJsonFile);
-importBtn.addEventListener('click', () => importFileInput.click());
-
-
-// Try to restore last viewed from session, otherwise show a random quote
-const restored = restoreLastViewed();
-if (!restored) showRandomQuote();
-})();
+importInput.addEventListener("change", importFromJsonFile);
