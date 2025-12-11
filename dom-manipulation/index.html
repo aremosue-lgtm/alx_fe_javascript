@@ -1,34 +1,81 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dynamic Quote Generator</title>
-<style>
-body { font-family: Arial, sans-serif; margin: 20px; }
-#quoteDisplay { margin: 20px 0; padding: 15px; border: 1px solid #ccc; background: #f9f9f9; font-size: 1.1rem; border-radius: 8px; }
-.form-container { margin-top: 20px; padding: 10px; background: #eef3ff; border-radius: 8px; }
-input, button { padding: 7px; margin: 6px 0; }
-button { cursor: pointer; }
-</style>
-</head>
-<body>
 
 
-<h1>Dynamic Quote Generator</h1>
+// ======= Add Quote =======
+addBtn.addEventListener('click', () => {
+const newQuote = quoteInput.value.trim();
+if (!newQuote) return alert("Please enter a quote.");
 
 
-<div id="quoteDisplay">Click "Show New Quote" to begin.</div>
+quotes.push(newQuote);
+saveQuotes();
+quoteInput.value = '';
+alert("Quote added!");
+});
 
 
-<button id="newQuote">Show New Quote</button>
-<button id="exportQuotes">Export Quotes</button>
-<input type="file" id="importFile" accept=".json" />
+// ======= Generate Random Quote =======
+generateBtn.addEventListener('click', () => {
+if (quotes.length === 0) return alert("No quotes available.");
 
 
-<div id="formContainer"></div>
+const randomIndex = Math.floor(Math.random() * quotes.length);
+displayQuote(randomIndex);
+});
 
 
-<script src="script.js"></script>
+// ======= Export Quotes (JSON Download) =======
+function exportToJsonFile() {
+const dataStr = JSON.stringify(quotes, null, 2);
+const blob = new Blob([dataStr], { type: 'application/json' });
+const url = URL.createObjectURL(blob);
+
+
+const a = document.createElement('a');
+a.href = url;
+a.download = 'quotes.json';
+a.click();
+URL.revokeObjectURL(url);
+}
+exportBtn.addEventListener('click', exportToJsonFile);
+
+
+// ======= Import Quotes from JSON File =======
+function importFromJsonFile(event) {
+const file = event.target.files[0];
+if (!file) return;
+
+
+const reader = new FileReader();
+reader.onload = function(e) {
+try {
+const imported = JSON.parse(e.target.result);
+if (!Array.isArray(imported)) throw new Error();
+
+
+quotes.push(...imported);
+saveQuotes();
+alert('Quotes imported successfully!');
+} catch (err) {
+alert('Invalid JSON file.');
+}
+};
+
+
+reader.readAsText(file);
+}
+
+
+importFile.addEventListener('change', importFromJsonFile);
+
+
+// ======= Load Last Viewed Quote on Page Load =======
+window.addEventListener('DOMContentLoaded', () => {
+const lastIndex = sessionStorage.getItem(SS_LAST_VIEWED_KEY);
+if (lastIndex !== null && quotes[lastIndex]) {
+displayQuote(lastIndex);
+}
+});
+</script>
 </body>
 </html>
