@@ -27,15 +27,19 @@
       margin: 10px 10px 10px 0;
       cursor: pointer;
     }
-    input {
+    input, select {
       padding: 10px;
       margin-right: 10px;
       width: 250px;
+      font-size: 1em;
     }
-    .form-container, .storage-container {
+    .form-container, .storage-container, .filter-container {
       margin-top: 30px;
       padding: 20px;
       border-top: 1px solid #ddd;
+    }
+    label {
+      font-weight: bold;
     }
   </style>
 </head>
@@ -48,10 +52,19 @@
   <!-- Show new quote button -->
   <button id="newQuote">Show New Quote</button>
 
+  <!-- Category Filter -->
+  <div class="filter-container">
+    <label for="categoryFilter">Filter by Category:</label>
+    <select id="categoryFilter" onchange="filterQuotes()">
+      <option value="all">All Categories</option>
+      <!-- Options populated dynamically by populateCategories() -->
+    </select>
+  </div>
+
   <!-- Dynamic add quote form will be inserted here -->
   <div id="formContainer" class="form-container"></div>
 
-  <!-- Static Import/Export controls (required for checker) -->
+  <!-- Import/Export controls -->
   <div class="storage-container">
     <button id="exportBtn">Export Quotes to JSON</button>
 
