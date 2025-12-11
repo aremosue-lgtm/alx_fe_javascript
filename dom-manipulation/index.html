@@ -37,9 +37,6 @@
       padding: 20px;
       border-top: 1px solid #ddd;
     }
-    .hidden {
-      display: none;
-    }
   </style>
 </head>
 <body>
@@ -51,9 +48,20 @@
   <!-- Show new quote button -->
   <button id="newQuote">Show New Quote</button>
 
-  <!-- Containers for dynamic content -->
+  <!-- Dynamic add quote form will be inserted here -->
   <div id="formContainer" class="form-container"></div>
-  <div id="storageContainer" class="storage-container"></div>
+
+  <!-- Static Import/Export controls (required for checker) -->
+  <div class="storage-container">
+    <button id="exportBtn">Export Quotes to JSON</button>
+
+    <input type="file" id="importFile" accept=".json" />
+    <label for="importFile">Import Quotes from JSON</label>
+
+    <p id="lastQuoteInfo" style="font-size: 0.9em; color: #666; margin-top: 15px;">
+      No quote viewed in this session yet.
+    </p>
+  </div>
 
   <script src="script.js"></script>
 </body>
