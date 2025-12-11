@@ -4,23 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dynamic Quote Generator</title>
-  <style>
-    body { font-family: Arial, sans-serif; max-width: 700px; margin: 40px auto; padding: 20px; background:#f7fffd4; }
-    #quoteDisplay { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin: 20px 0; font-size: 1.5em; text-align: center; min-height: 120px; }
-    input, button, select { padding: 10px; margin: 5px; font-size: 1em; }
-    button { background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
-  </style>
 </head>
 <body>
   <h1>Dynamic Quote Generator</h1>
 
-  <div id="quoteDisplay">Click the button to see a quote!</div>
-  
+  <div id="quoteDisplay"></div>
   <button id="newQuote">Show New Quote</button>
 
-  <div style="margin-top: 30px;">
+  <div>
     <input type="text" id="newQuoteText" placeholder="Enter a new quote">
-    <input type="text" id="newQuoteCategory" placeholder="Enter category">
+    <input type="text" id="newQuoteCategory" placeholder="Enter quote category">
     <button onclick="addQuote()">Add Quote</button>
   </div>
 
